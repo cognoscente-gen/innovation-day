@@ -92,3 +92,20 @@ Contributions are welcome! Feel free to submit a PR or open an issue.
 Join the [Discord](https://discord.gg/kW9nBQErGe) to chat with the team
 
 Check out our other projects: [sketch](https://github.com/approximatelabs/sketch) and [approximatelabs](https://approximatelabs.com)
+
+Business Centric Workflow
+
+Secure and Efficient Commodity Exposure Data Distribution with Multi-Layered Validation
+This 7-step process ensures the accurate and timely distribution of commodity exposure data to our clients through APIs. Our robust validation framework minimizes errors and guarantees data integrity throughout the journey.
+1. Secure Acquisition: Data is securely retrieved from the designated Aladdin S3 bucket, acting as our single source of truth.
+2. Pre-Validation - First Line of Defense: This initial checkpoint verifies file availability and completeness. It checks for the presence of a valid effective date and ensures the data adheres to the expected format. Any inconsistencies trigger Exception Handling I, preventing potentially faulty data from entering the system.
+3. Exception Handling I - Proactive Issue Resolution: If pre-validation flags an issue, the data is quarantined for review by specialized teams in Run Org or Product Ops. The root cause of non-compliance is identified and addressed before the data is re-routed back to Acquisition for a second attempt at pre-validation. This proactive approach prevents errors from propagating further and ensures only compliant data enters the processing pipeline.
+4. ETL - Building the Foundation: This stage involves extracting data from its source, transforming it into a format suitable for our system, and loading it into the designated EIP-N database table. This process lays the foundation for accurate data analysis and distribution.
+5. Post-Validation - Advanced Data Quality Checks: After ETL, our robust anomaly detection system meticulously scans for potential errors or irregularities within the data itself. This multi-layered validation approach offers an extra layer of security, safeguarding data integrity before distribution. If anomalies are discovered, the data is quarantined in a dedicated S3 bucket (Quarantine S3) for further investigation.
+6. Exception Handling II - Ensuring Compliance: Data that passes post-validation undergoes a final compliance check. This ensures the data adheres to all relevant business rules and regulations. Any non-compliant data is flagged and routed back to Product Ops. Here, our dedicated Exposures team collaborates with Product Ops to rectify the data in the tables. Once corrected, the data re-enters the process for anomaly detection in post-validation. This two-stage exception handling process guarantees complete data accuracy and compliance.
+7. Secure Distribution: Upon successful completion of all validation stages, the data is deemed fit for distribution. Authorized clients can access the data seamlessly through our secure APIs, including REST and GraphQL APIs. This ensures timely access to accurate and reliable commodity exposure data.
+Process Improvement Opportunities:
+1. Automate Exception Handling: Investigate potential automation for resolving common pre-validation and compliance check failures. This could streamline the process and reduce reliance on manual intervention.
+2. Real-time Data Monitoring: Implement real-time data monitoring to proactively identify potential issues within the Aladdin S3 bucket or data source. This can help prevent errors from entering the system altogether.
+3. Data Lineage Tracking: Consider incorporating data lineage tracking to map the data flow throughout the process. This enhances transparency and simplifies troubleshooting in case of any issues.
+
