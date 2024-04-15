@@ -1,94 +1,105 @@
-# [dataDM](https://github.com/approximatelabs/datadm) 💬📊
+## Ideal Rounding Solution in Java
 
-[![PyPI](https://img.shields.io/pypi/v/datadm)](https://pypi.org/project/datadm/)
-[![tests](https://github.com/approximatelabs/datadm/actions/workflows/test-build-publish.yml/badge.svg)](https://github.com/approximatelabs/datadm/actions/workflows/test-build-publish.yml)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/approximatelabs/datadm/blob/main/datadm.ipynb)
-[![](https://dcbadge.vercel.app/api/server/kW9nBQErGe?compact=true&style=flat)](https://discord.gg/kW9nBQErGe)
+Here's an ideal solution for rounding data in Java using a library:
 
-![dataDM](datadm-header.png?raw=true)
+**1. Library Implementation:**
 
-DataDM is your private data assistant. A conversational interface for your data where you can load, clean, transform, and visualize without a single line of code. DataDM is open source and can be run entirely locally, keeping your juicy data secrets fully private.
+* Create a `RoundingUtil` class with static methods for rounding.
+* Offer methods for different rounding modes (up, down, half-up):
 
-## Demo
+```java
+public class RoundingUtil {
 
-https://github.com/approximatelabs/datadm/assets/916073/f15e6ab5-8108-40ea-a6de-c69a1389af84
+    public static double roundUp(double value, int decimalPlaces) {
+        return Math.ceil(value * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces);
+    }
 
-Note: Demo above is `GPT-4`, which sends the conversation to OpenAI's API. To use in full local mode, be sure to select `starchat-alpha-cuda` or `starchat-beta-cuda` as the model. This will use the StarChat model, which is a bit less capable but runs entirely locally.
+    public static double roundDown(double value, int decimalPlaces) {
+        return Math.floor(value * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces);
+    }
 
-⚠️ LLMs are known to hallucinate and generate fake results. So, double-check before trusting their results blindly!
-
-### ⇒ *[Try it now! Hosted public environment is live! (Click Here)](https://datadm.approx.dev/new)* ⇐
-Don't put any sensitive data in the public environment, use the docker image or colab notebook for your private conversations.
-
-### Join our [discord](https://discord.gg/kW9nBQErGe) to join the community and share your thoughts!
-
-## Features
-- [x] Persistent Juptyer kernel backend for data manipulation during conversation
-- [x] Run entirely locally, keeping your data private
-- [x] Natural language chat, visualizations/plots, and direct download of data assets
-- [x] Easy to use docker-images for one-line deployment
-- [x] Load multiple tables directly into the chat
-- [x] Search for data and load CSVs directly from github
-- [x] Option to use OpenAI's GPT-3.5 or GPT-4 (requires API key)
-- [ ] WIP: GGML based mode (CPU only, no GPU required)
-- [ ] WIP: Rollback kernel state when undo ~using `criu`~ (re-execute all cells)
-- [ ] TODO: Support for more data sources (e.g. SQL, S3, PySpark etc.)
-- [ ] TODO: Export a conversation as a notebook or html
-
-## Things you can ask DataDM
-- [x] Load data from a URL
-- [x] Clean data by removing duplicates, nulls, outliers, etc.
-- [x] Join data from multiple tables into a single output table
-- [x] Visualize data with plots and charts
-- [x] Ask whatever you want to your very own private code-interpreter
-
-## Quickstart
-
-You can use docker, colab, or install locally.
-
-### 1. Docker to run locally
-```bash
-docker run -e OPENAI_API_KEY={{YOUR_API_KEY_HERE}} -p 7860:7860 -it ghcr.io/approximatelabs/datadm:latest
+    public static double roundHalfUp(double value, int decimalPlaces) {
+        return Math.round(value * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces);
+    }
+}
 ```
 
-For local-mode using StarChat model (requiring a CUDA device with at least 24GB of RAM)
-```bash
-docker run --gpus all -p 7860:7860 -it ghcr.io/approximatelabs/datadm:latest-cuda
-```
+* Consider using `BigDecimal` for higher precision if needed.
 
-### 2. Colab to run in the cloud
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/approximatelabs/datadm/blob/main/datadm.ipynb)
+**2. Configuration:**
 
+* Avoid configuration files for simplicity.
+* Define default rounding mode (e.g., half-up) within the library.
+* Allow overriding the default mode through method arguments.
 
-### 3. Use as a python package
+**3. Team Mercury Use Case:**
 
-> ⚠️ datadm used this way runs LLM generated code in your userspace
+* Implement a separate method in `RoundingUtil` for percentage rounding. This method can sum the rounded values and adjust the last value to reach 100%.
 
-For local-data, cloud-model mode (no GPU required) - requires an OpenAI API key
-```bash
-$ pip install datadm
-$ datadm
-```
+**4. Audit Trail:**
 
-For local-mode using StarChat model (requiring a CUDA device with at least 24GB of RAM)
-```bash
-$ pip install "datadm[cuda]"
-$ datadm
-```
+* Create an `AuditTrail` class to store rounding information.
+* Include fields like original value, rounded value, rounding mode, timestamp, etc.
+* Persist audit data to DynamoDB or a relational database (consider cost and access patterns).
+* Implement methods in `RoundingUtil` to log audit information when rounding occurs.
 
-## Special Thanks
+**5. Lambda vs. Class:**
 
-* [starchat-beta](https://huggingface.co/HuggingFaceH4/starchat-beta) ([starcoder](https://github.com/bigcode-project/starcoder) with [databricks-dolly](https://huggingface.co/datasets/databricks/databricks-dolly-15k) and [OpenAssistant/oasst1](https://huggingface.co/datasets/OpenAssistant/oasst1))
-* [Guidance](https://github.com/microsoft/guidance)
-* [HuggingFace](https://huggingface.co/)
-* [OpenAI](https://openai.com/)
+* While a lambda could achieve rounding logic, a class offers better maintainability, reusability, and documentation.
 
-## Contributions
+**Cost and Time Considerations:**
 
-Contributions are welcome! Feel free to submit a PR or open an issue.
+* This approach is relatively lightweight and cost-effective.
+* Development time is minimized by using existing Java methods and avoiding complex configuration files.
 
-## Community
+## Confluence Write-up
 
-Join the [Discord](https://discord.gg/kW9nBQErGe) to chat with the team
+**Title: Consistent Data Rounding with RoundingUtil Library**
 
-Check out our other projects: [sketch](https://github.com/approximatelabs/sketch) and [approximatelabs](https://approximatelabs.com)
+**Introduction:**
+
+This document outlines the implementation of a `RoundingUtil` library for consistent data rounding across our systems.
+
+**Problem:**
+
+Inconsistent rounding practices led to data discrepancies in distributed data.
+
+**Solution:**
+
+* A centralized `RoundingUtil` class offers methods for various rounding modes (up, down, half-up) with user-selectable decimal places.
+* The library facilitates consistent rounding across applications and eliminates the need for individual consumer-specific logic.
+* Team Mercury's use case is addressed with a dedicated percentage rounding method.
+
+**Audit Trail:**
+
+* Optional audit trail functionality logs rounding details for historical reference and compliance purposes.
+
+**Benefits:**
+
+* Consistency in data distribution across all channels.
+* Improved client experience by eliminating rounding discrepancies.
+* Reduced development effort due to a centralized library.
+
+**Implementation Details:**
+
+* The document can include code snippets and explanations of the `RoundingUtil` class and its methods.
+* It can discuss the audit trail implementation (if chosen) and data storage considerations.
+
+## Audit Log Table Structure
+
+| Field           | Description                                           | Data Type          |
+|-----------------|-------------------------------------------------------|--------------------|
+| original_value   | Original value before rounding                          | Double               |
+| rounded_value    | Rounded value after applying rounding logic           | Double               |
+| rounding_mode   | Rounding mode used (up, down, half-up)                  | String               |
+| decimal_places  | Number of decimal places used for rounding             | Integer              |
+| source_system    | System from which the data originated                | String               |
+| timestamp        | Timestamp of the rounding operation                      | Timestamp            |
+| difference       | Difference between original and rounded value (optional) | Double               |
+
+**Note:**
+
+* This is a sample structure, and you might need to adjust it based on specific requirements.
+* Consider adding additional fields like user ID for audit purposes.
+
+This approach provides a well-structured, maintainable, and cost-effective solution for consistent data rounding in Java. It addresses the challenges of Team Mercury and offers an audit trail for compliance needs.
