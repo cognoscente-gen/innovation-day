@@ -1,49 +1,56 @@
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Test;
+## Rounding Library
 
-public class RoundingTest {
+This library provides a simple utility class for rounding double values to a specified number of decimal places.
 
-  @Test
-  public void testRound_PositiveValues() {
-    assertEquals(3.14, Rounding.round(3.14159), 0.001);
-    assertEquals(2.50, Rounding.round(2.5), 0.001);
-    assertEquals(10.01, Rounding.round(10.005), 0.001);
-  }
+**Prerequisites**
 
-  @Test
-  public void testRound_NegativeValues() {
-    assertEquals(-3.14, Rounding.round(-3.14159), 0.001);
-    assertEquals(-2.50, Rounding.round(-2.5), 0.001);
-    assertEquals(-10.01, Rounding.round(-10.005), 0.001);
-  }
+The Rounding library has no specific external dependencies and should work with most Java environments. 
 
-  @Test
-  public void testRound_RandomValues() {
-    double[] values = {1.2345, 5.6789, 9.0123, -4.5678, -8.9012, 0.0005, 0.9999};
-    double[] expected = {1.23, 5.68, 9.01, -4.57, -8.90, 0.00, 1.00};
+**Installation**
 
-    for (int i = 0; i < values.length; i++) {
-      assertEquals(expected[i], Rounding.round(values[i]), 0.001);
-    }
-  }
+If you're using a dependency management system like Maven, you can add the following dependency to your project's pom.xml file:
 
-  @Test
-  public void testRound_NonNumericInput() {
-    assertThrows(NumberFormatException.class, () -> Rounding.round("hello"));
-  }
+```xml
+<dependency>
+  <groupId>your-group-id</groupId>
+  <artifactId>rounding-lib</artifactId>
+  <version>your-version</version>
+</dependency>
+```
 
-  @Test
-  public void testRound_PositiveInfinity() {
-    assertEquals(Double.POSITIVE_INFINITY, Rounding.round(Double.POSITIVE_INFINITY), 0.0);
-  }
+**Usage**
 
-  @Test
-  public void testRound_NegativeInfinity() {
-    assertEquals(Double.NEGATIVE_INFINITY, Rounding.round(Double.NEGATIVE_INFINITY), 0.0);
-  }
+The `Rounding` class offers a static method `round` that takes a double value and returns the rounded value to two decimal places by default.
 
-  @Test
-  public void testRound_NaN() {
-    assertTrue(Double.isNaN(Rounding.round(Double.NaN)));
+```java
+import com.example.rounding.Rounding;
+
+public class Main {
+  public static void main(String[] args) {
+    double value = 3.14159;
+    double roundedValue = Rounding.round(value);
+    System.out.println("Rounded value (default 2 decimal places): " + roundedValue); // Output: Rounded value (default 2 decimal places): 3.14
   }
 }
+```
+
+**Additional Features**
+
+- The `round` method can handle positive and negative infinity (`Double.POSITIVE_INFINITY` and  `Double.NEGATIVE_INFINITY`), returning the same infinity value after rounding.
+- NaN (Not-a-Number) values are preserved during rounding (e.g., `Rounding.round(Double.NaN)` remains `NaN`).
+- The `round` method throws a `NumberFormatException` if the input is not a valid double value (e.g., trying to round a String like "hello").
+
+**Testing**
+
+The library includes unit tests to ensure its functionality for various inputs and edge cases.
+
+**License**
+
+(Include your chosen open-source license information here)
+
+**Getting Started**
+
+1. Add the dependency to your project (if using a dependency management system).
+2. Import the `Rounding` class and use the `round` method in your code.
+
+This README provides a basic overview of the Rounding library. Feel free to explore the source code and experiment with the functionality in your projects.
