@@ -16,6 +16,54 @@ public class ParseCurrencyExposuresGson {
             Gson gson = new Gson();
             JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
 
+            // Assuming "currencyExposures" is the key within the root object
+            if (jsonElement.isJsonObject()) {
+                JsonObject rootObject = jsonElement.getAsJsonObject();
+                JsonArray exposuresArray = rootObject.get("currencyExposures").getAsJsonArray();
+                for (JsonElement exposureElement : exposuresArray) {
+                    if (exposureElement.isJsonObject()) {
+                        JsonObject exposureObject = exposureElement.getAsJsonObject();
+                        String currencyCode = exposureObject.get("currencyCode").getAsString();
+                        double value = exposureObject.get("value").getAsDouble();
+                        currencyExposures.put(currencyCode, value);
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException("Unexpected root element type: " + jsonElement);
+            }
+        } catch (FileNotFoundException e) {
+            throw new IOException("File not found: " + String.format(fileName));
+        }
+        return currencyExposures;
+    }
+
+    public static void main(String[] args) throws IOException {
+        String fileName = "test_data.json";  // Replace with your actual file path
+        Map<String, Double> currencyExposures = parseCurrencyExposures(fileName);
+        System.out.println(currencyExposures);
+    }
+}
+
+
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ParseCurrencyExposuresGson {
+
+    public static Map<String, Double> parseCurrencyExposures(String fileName) throws IOException {
+        Map<String, Double> currencyExposures = new HashMap<>();
+        try (FileReader reader = new FileReader(fileName)) {
+            Gson gson = new Gson();
+            JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
+
             // Assuming the root element is an array of currency exposure objects
             if (jsonElement.isJsonArray()) {
                 JsonArray jsonArray = jsonElement.getAsJsonArray();
