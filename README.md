@@ -80,3 +80,26 @@ public class TestRoundTest {
 Both headers and query parameters have their merits.  In your case, using a header for rounding can provide a clean, standardized approach that aligns well with existing header usage for request-specific details.  It reduces query string clutter and enforces consistent rounding behavior based on your library's configuration.
 
 
+
+
+/**
+ * Adjusts the values in a map of currency codes and their corresponding double values
+ * to ensure they sum to a target sum, while maintaining rounding to two decimal places.
+ *
+ * This method iteratively rounds each value in the map to two decimal places using the
+ * HALF_UP rounding mode. Then, it calculates the difference between the current sum of
+ * the rounded values and the target sum. If the absolute value of the difference is
+ * greater than a tolerance (e.g., 0.00001), the method identifies the value in the map that
+ * would contribute the least to the difference if its rounded value were adjusted by one
+ * in either direction (up or down). This value is then adjusted slightly (up or down)
+ * to bring the sum closer to the target sum. The iteration continues until the difference
+ * between the current sum and the target sum is within the tolerance.
+ *
+ * @param values The map of currency codes (String) and their corresponding double values
+ * @param targetSum The target sum to which the adjusted values should add up
+ * @return A new map containing the adjusted rounded values for each currency code
+ */
+public Map<String, BigDecimal> adjustRoundedValues(Map<String, Double> values, double targetSum) {
+    // ... (implementation of the method)
+}
+
