@@ -1,3 +1,65 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class TestRound {
+
+    public static Map<String, Double> readCurrencyData(String fileName) throws IOException {
+        Map<String, Double> values = new HashMap<>();
+        try (Scanner scanner = new Scanner(new FileReader(fileName))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                // Assuming each line is formatted as "currencyCode value" (adapt if different)
+                String[] parts = line.split(" ");
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException("Invalid line format in test_data.json");
+                }
+                String currencyCode = parts[0];
+                double value;
+                try {
+                    value = Double.parseDouble(parts[1]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid value format in test_data.json: " + e.getMessage());
+                }
+                values.put(currencyCode, value);
+            }
+        } catch (FileNotFoundException e) {
+            throw new IOException("File not found: " + fileName);
+        }
+        return values;
+    }
+
+    public static void main(String[] args) throws IOException {
+        String fileName = "test_data.json"; // Replace with your actual file path
+
+        // Test case 1: Successful reading and processing
+        try {
+            Map<String, Double> values = readCurrencyData(fileName);
+            round.adjustValues(values); // Call your round.adjustValues() method here
+            // Add assertions to verify the adjusted values in Map (if applicable)
+        } catch (IOException e) {
+            System.err.println("Error reading data: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid data format: " + e.getMessage());
+        }
+
+        // Test case 2: Handle errors (invalid file path, invalid data format)
+        String invalidFileName = "invalid_file.json"; // Example of an invalid filename
+        try {
+            readCurrencyData(invalidFileName);
+            System.err.println("Test failed: Expected exception for invalid file path");
+        } catch (IOException e) {
+            System.out.println("Test passed: Exception caught for invalid file path (" + e.getMessage() + ")");
+        }
+    }
+}
+
+
+
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
