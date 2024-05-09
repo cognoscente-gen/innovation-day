@@ -1,123 +1,46 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
-public class TestRound {
+public class ParseCurrencyExposuresGson {
 
-    public static Map<String, Double> readCurrencyData(String fileName) throws IOException {
-        Map<String, Double> values = new HashMap<>();
-        try (Scanner scanner = new Scanner(new FileReader(fileName))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                // Assuming each line is formatted as "currencyCode value" (adapt if different)
-                String[] parts = line.split(" ");
-                if (parts.length != 2) {
-                    throw new IllegalArgumentException("Invalid line format in test_data.json");
+    public static Map<String, Double> parseCurrencyExposures(String fileName) throws IOException {
+        Map<String, Double> currencyExposures = new HashMap<>();
+        try (FileReader reader = new FileReader(fileName)) {
+            Gson gson = new Gson();
+            JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
+
+            // Assuming the root element is an array of currency exposure objects
+            if (jsonElement.isJsonArray()) {
+                JsonArray jsonArray = jsonElement.getAsJsonArray();
+                for (JsonElement exposureElement : jsonArray) {
+                    if (exposureElement.isJsonObject()) {
+                        JsonObject exposureObject = exposureElement.getAsJsonObject();
+                        String currencyCode = exposureObject.get("currencyCode").getAsString();
+                        double value = exposureObject.get("value").getAsDouble();
+                        currencyExposures.put(currencyCode, value);
+                    }
                 }
-                String currencyCode = parts[0];
-                double value;
-                try {
-                    value = Double.parseDouble(parts[1]);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid value format in test_data.json: " + e.getMessage());
-                }
-                values.put(currencyCode, value);
             }
         } catch (FileNotFoundException e) {
-            throw new IOException("File not found: " + fileName);
+            throw new IOException("File not found: " String.format(fileName));
         }
-        return values;
+        return currencyExposures;
     }
 
     public static void main(String[] args) throws IOException {
-        String fileName = "test_data.json"; // Replace with your actual file path
-
-        // Test case 1: Successful reading and processing
-        try {
-            Map<String, Double> values = readCurrencyData(fileName);
-            round.adjustValues(values); // Call your round.adjustValues() method here
-            // Add assertions to verify the adjusted values in Map (if applicable)
-        } catch (IOException e) {
-            System.err.println("Error reading data: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.err.println("Invalid data format: " + e.getMessage());
-        }
-
-        // Test case 2: Handle errors (invalid file path, invalid data format)
-        String invalidFileName = "invalid_file.json"; // Example of an invalid filename
-        try {
-            readCurrencyData(invalidFileName);
-            System.err.println("Test failed: Expected exception for invalid file path");
-        } catch (IOException e) {
-            System.out.println("Test passed: Exception caught for invalid file path (" + e.getMessage() + ")");
-        }
+        String fileName = "test_data.json";  // Replace with your actual file path
+        Map<String, Double> currencyExposures = parseCurrencyExposures(fileName);
+        System.out.println(currencyExposures);
     }
 }
 
-
-
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-public class TestRoundTest {
-
-    @TempDir
-    public File tempDir;
-
-    @Test
-    public void testReadCurrencyData_ValidData() throws IOException {
-        // Create a test data file with valid content
-        File testDataFile = new File(tempDir, "test_data.json");
-        String testData = "USD 10.50\nEUR 12.34\n";
-        writeStringToFile(testDataFile, testData);
-
-        // Call the method under test
-        Map<String, Double> values = TestRound.readCurrencyData(testDataFile.getPath());
-
-        // Verify the parsed data
-        Map<String, Double> expectedValues = new HashMap<>();
-        expectedValues.put("USD", 10.50);
-        expectedValues.put("EUR", 12.34);
-        assertEquals(expectedValues, values);
-    }
-
-    @Test
-    public void testReadCurrencyData_InvalidFile() throws IOException {
-        // Use a non-existent file path
-        String invalidFilePath = "invalid_file.json";
-
-        // Expect an IOException
-        assertThrows(IOException.class, () -> TestRound.readCurrencyData(invalidFilePath));
-    }
-
-    @Test
-    public void testReadCurrencyData_InvalidFormat() throws IOException {
-        // Create a test data file with invalid format
-        File testDataFile = new File(tempDir, "test_data.json");
-        String invalidData = "This is not valid data\n";
-        writeStringToFile(testDataFile, invalidData);
-
-        // Expect an IllegalArgumentException
-        assertThrows(IllegalArgumentException.class, () -> TestRound.readCurrencyData(testDataFile.getPath()));
-    }
-
-    private void writeStringToFile(File file, String content) throws IOException {
-        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
-            writer.write(content);
-        }
-    }
-}
 
 
 **Pros of using a Header for Rounding:**
