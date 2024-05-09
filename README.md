@@ -1,56 +1,82 @@
-## Rounding Library
+import static org.junit.jupiter.api.Assertions.*;
 
-This library provides a simple utility class for rounding double values to a specified number of decimal places.
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-**Prerequisites**
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-The Rounding library has no specific external dependencies and should work with most Java environments. 
+public class TestRoundTest {
 
-**Installation**
+    @TempDir
+    public File tempDir;
 
-If you're using a dependency management system like Maven, you can add the following dependency to your project's pom.xml file:
+    @Test
+    public void testReadCurrencyData_ValidData() throws IOException {
+        // Create a test data file with valid content
+        File testDataFile = new File(tempDir, "test_data.json");
+        String testData = "USD 10.50\nEUR 12.34\n";
+        writeStringToFile(testDataFile, testData);
 
-```xml
-<dependency>
-  <groupId>your-group-id</groupId>
-  <artifactId>rounding-lib</artifactId>
-  <version>your-version</version>
-</dependency>
-```
+        // Call the method under test
+        Map<String, Double> values = TestRound.readCurrencyData(testDataFile.getPath());
 
-**Usage**
+        // Verify the parsed data
+        Map<String, Double> expectedValues = new HashMap<>();
+        expectedValues.put("USD", 10.50);
+        expectedValues.put("EUR", 12.34);
+        assertEquals(expectedValues, values);
+    }
 
-The `Rounding` class offers a static method `round` that takes a double value and returns the rounded value to two decimal places by default.
+    @Test
+    public void testReadCurrencyData_InvalidFile() throws IOException {
+        // Use a non-existent file path
+        String invalidFilePath = "invalid_file.json";
 
-```java
-import com.example.rounding.Rounding;
+        // Expect an IOException
+        assertThrows(IOException.class, () -> TestRound.readCurrencyData(invalidFilePath));
+    }
 
-public class Main {
-  public static void main(String[] args) {
-    double value = 3.14159;
-    double roundedValue = Rounding.round(value);
-    System.out.println("Rounded value (default 2 decimal places): " + roundedValue); // Output: Rounded value (default 2 decimal places): 3.14
-  }
+    @Test
+    public void testReadCurrencyData_InvalidFormat() throws IOException {
+        // Create a test data file with invalid format
+        File testDataFile = new File(tempDir, "test_data.json");
+        String invalidData = "This is not valid data\n";
+        writeStringToFile(testDataFile, invalidData);
+
+        // Expect an IllegalArgumentException
+        assertThrows(IllegalArgumentException.class, () -> TestRound.readCurrencyData(testDataFile.getPath()));
+    }
+
+    private void writeStringToFile(File file, String content) throws IOException {
+        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+            writer.write(content);
+        }
+    }
 }
-```
 
-**Additional Features**
 
-- The `round` method can handle positive and negative infinity (`Double.POSITIVE_INFINITY` and  `Double.NEGATIVE_INFINITY`), returning the same infinity value after rounding.
-- NaN (Not-a-Number) values are preserved during rounding (e.g., `Rounding.round(Double.NaN)` remains `NaN`).
-- The `round` method throws a `NumberFormatException` if the input is not a valid double value (e.g., trying to round a String like "hello").
+**Pros of using a Header for Rounding:**
 
-**Testing**
+* **Standardized behavior:**  By using a header like `X-Precision` (or `Prefer-Round-Digits`), you can define specific rounding behavior (e.g., 2 decimal places, half-up rounding) within your library. This ensures consistency across all requests that include the header.
+* **Reduced query string clutter:**  If rounding is a common functionality for many API calls, keeping it out of the query string can make your URLs cleaner and less cluttered. 
+* **Aligns with request-specific details:**  As you mentioned, headers are often used for request-specific details like versioning or language preference.  Rounding precision could be considered another detail specific to how the user wants the data presented.
 
-The library includes unit tests to ensure its functionality for various inputs and edge cases.
+**Addressing Query Parameter Concerns:**
 
-**License**
+* **Limited flexibility:**  While query parameters are great for user-specified input, your scenario doesn't require users to define the number of decimal places.  The header can provide a pre-defined, standardized behavior.
 
-(Include your chosen open-source license information here)
+**Here's how your API could work with a rounding header:**
 
-**Getting Started**
+* Define a custom header  like `X-Precision` or `Prefer-Round-Digits`.
+* In your API code, check for the presence of this header.
+* If the header exists, use the specified value (e.g., 2) and half-up rounding from your library.
+* If the header is absent, use a default rounding behavior (e.g., no rounding or a different default precision).
 
-1. Add the dependency to your project (if using a dependency management system).
-2. Import the `Rounding` class and use the `round` method in your code.
+**Overall:**
 
-This README provides a basic overview of the Rounding library. Feel free to explore the source code and experiment with the functionality in your projects.
+Both headers and query parameters have their merits.  In your case, using a header for rounding can provide a clean, standardized approach that aligns well with existing header usage for request-specific details.  It reduces query string clutter and enforces consistent rounding behavior based on your library's configuration.
+
+
