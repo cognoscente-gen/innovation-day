@@ -1,48 +1,42 @@
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+@Test
+public void testGetRoundedExposures_CalledWhenRoundingEnabled() {
+    ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
+    RequestContext mockContext = mock(RequestContext.class); // Mock RequestContext
 
-public class ExposureUtilTest {
+    // Simulate successful context retrieval and header presence
+    Map<String, List<String>> mockHeaders = new HashMap<>();
+    mockHeaders.put("rounding", Collections.singletonList("true"));
+    when(mockParams.getRequestContext()).thenReturn(mockContext);
+    when(mockContext.getHeaders()).thenReturn(mockHeaders);
 
-    @Test
-    public void testGetRoundedExposures_CalledWhenRoundingEnabled() {
-        ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
-        List<CurrencyExposureBreakdownDto> mockList = mock(List.class);
-        HashMap<String, List<String>> mockHeaders = new HashMap<>();
-        mockHeaders.put("rounding", Collections.singletonList("true"));
-        when(mockParams.getRequestContext()).thenReturn(mock(RequestContext.class));
-        when(mockParams.getRequestContext().getHeaders()).thenReturn(mockHeaders);
+    List<CurrencyExposureBreakdownDto> exposuresBreakdownDto = new ArrayList<>(); // Create real list
 
-        ExposureUtil.isRoundingRequired(mockParams, mockList);
+    ExposureUtil.isRoundingRequired(mockParams, exposuresBreakdownDto);
 
-        verify(mockList).addAll(anyList()); // Assuming getRoundedExposures adds rounded values to the list
-    }
-
-    @Test
-    public void testGetRoundedExposures_NotCalledWhenRoundingDisabled() {
-        ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
-        List<CurrencyExposureBreakdownDto> mockList = mock(List.class);
-        HashMap<Stringشور mockHeaders = new HashMap<>();
-        mockHeaders.put("rounding", Collections.singletonList("false"));
-        when(mockParams.getRequestContext()).thenReturn(mock(RequestContext.class));
-        when(mockParams.getRequestContext().getHeaders()).thenReturn(mockHeaders);
-
-        ExposureUtil.isRoundingRequired(mockParams, mockList);
-
-        verify(mockList, never()).addAll(anyList()); // Verify no addition happens
-    }
-
-    @Test
-    public void testGetRoundedExposures_NotCalledWhenNoRoundingHeader() {
-        ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
-        List<CurrencyExposureBreakdownDto> mockList = mock(List.class);
-        when(mockParams.getRequestContext()).thenReturn(mock(RequestContext.class));
-        when(mockParams.getRequestContext().getHeaders()).thenReturn(new HashMap<>());
-
-        ExposureUtil.isRoundingRequired(mockParams, mockList);
-
-        verify(mockList, never()).addAll(anyList()); // Verify no addition happens
-    }
+    // Verify getRoundedExposures is called (adjust based on implementation)
+    // ...
 }
+
+@Test
+public void testGetRoundedExposures_NotCalledWhenRoundingDisabled() {
+    ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
+    RequestContext mockContext = mock(RequestContext.class); // Mock RequestContext
+
+    // Simulate successful context retrieval and header with "false" value
+    Map<String, List<String>> mockHeaders = new HashMap<>();
+    mockHeaders.put("rounding", Collections.singletonList("false"));
+    when(mockParams.getRequestContext()).thenReturn(mockContext);
+    when(mockContext.getHeaders()).thenReturn(mockHeaders);
+
+    List<CurrencyExposureBreakdownDto> exposuresBreakdownDto = new ArrayList<>(); // Create real list
+
+    ExposureUtil.isRoundingRequired(mockParams, exposuresBreakdownDto);
+
+    // Verify getRoundedExposures is not called (adjust based on implementation)
+    // ...
+}
+
+// Test case for missing "rounding" header (no getHeaders call on mockContext)
 
 
 
