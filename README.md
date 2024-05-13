@@ -1,42 +1,37 @@
-@Test
-public void testGetRoundedExposures_CalledWhenRoundingEnabled() {
-    ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
-    RequestContext mockContext = mock(RequestContext.class); // Mock RequestContext
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    // Simulate successful context retrieval and header presence
-    Map<String, List<String>> mockHeaders = new HashMap<>();
-    mockHeaders.put("rounding", Collections.singletonList("true"));
-    when(mockParams.getRequestContext()).thenReturn(mockContext);
-    when(mockContext.getHeaders()).thenReturn(mockHeaders);
+import java.util.Collections;
+import java.util.List;
 
-    List<CurrencyExposureBreakdownDto> exposuresBreakdownDto = new ArrayList<>(); // Create real list
+public class RoundingServiceTest {
 
-    ExposureUtil.isRoundingRequired(mockParams, exposuresBreakdownDto);
+    @Test
+    public void testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(List<String> roundingHeader, List<CurrencyExposureBreakdownDto> exposureBreakdownDtos) throws Exception {
+        // Mock currencyExposuresDto
+        CurrencyExposureBreakdownDto mockExposureDto = mock(CurrencyExposureBreakdownDto.class);
 
-    // Verify getRoundedExposures is called (adjust based on implementation)
-    // ...
+        RoundingService.isRoundingRequired(roundingHeader, Collections.singletonList(mockExposureDto));
+
+        // Verify no interactions on the mocked object
+        verifyNoInteractions(mockExposureDto);
+    }
+
+    @Test
+    public void testIsRoundingRequired_TrueHeader_NoInteractionWithCurrencyExposuresDto() throws Exception {
+        testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(Collections.singletonList("true"), Collections.emptyList());
+    }
+
+    @Test
+    public void testIsRoundingRequired_FalseHeader_NoInteractionWithCurrencyExposuresDto() throws Exception {
+        testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(Collections.singletonList("false"), Collections.emptyList());
+    }
+
+    @Test
+    public void testIsRoundingRequired_EmptyHeader_NoInteractionWithCurrencyExposuresDto() throws Exception {
+        testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(Collections.emptyList(), Collections.emptyList());
+    }
 }
-
-@Test
-public void testGetRoundedExposures_NotCalledWhenRoundingDisabled() {
-    ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
-    RequestContext mockContext = mock(RequestContext.class); // Mock RequestContext
-
-    // Simulate successful context retrieval and header with "false" value
-    Map<String, List<String>> mockHeaders = new HashMap<>();
-    mockHeaders.put("rounding", Collections.singletonList("false"));
-    when(mockParams.getRequestContext()).thenReturn(mockContext);
-    when(mockContext.getHeaders()).thenReturn(mockHeaders);
-
-    List<CurrencyExposureBreakdownDto> exposuresBreakdownDto = new ArrayList<>(); // Create real list
-
-    ExposureUtil.isRoundingRequired(mockParams, exposuresBreakdownDto);
-
-    // Verify getRoundedExposures is not called (adjust based on implementation)
-    // ...
-}
-
-// Test case for missing "rounding" header (no getHeaders call on mockContext)
 
 
 
