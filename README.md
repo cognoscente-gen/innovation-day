@@ -1,91 +1,46 @@
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-public class ParseCurrencyExposuresGson {
+public class ExposureUtilTest {
 
-    public static Map<String, Double> parseCurrencyExposures(String fileName) throws IOException {
-        Map<String, Double> currencyExposures = new HashMap<>();
-        try (FileReader reader = new FileReader(fileName)) {
-            Gson gson = new Gson();
-            JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
+    @Test
+    public void testGetRoundedExposures_CalledWhenRoundingEnabled() {
+        ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
+        List<CurrencyExposureBreakdownDto> mockList = mock(List.class);
+        HashMap<String, List<String>> mockHeaders = new HashMap<>();
+        mockHeaders.put("rounding", Collections.singletonList("true"));
+        when(mockParams.getRequestContext()).thenReturn(mock(RequestContext.class));
+        when(mockParams.getRequestContext().getHeaders()).thenReturn(mockHeaders);
 
-            // Assuming "currencyExposures" is the key within the root object
-            if (jsonElement.isJsonObject()) {
-                JsonObject rootObject = jsonElement.getAsJsonObject();
-                JsonArray exposuresArray = rootObject.get("currencyExposures").getAsJsonArray();
-                for (JsonElement exposureElement : exposuresArray) {
-                    if (exposureElement.isJsonObject()) {
-                        JsonObject exposureObject = exposureElement.getAsJsonObject();
-                        String currencyCode = exposureObject.get("currencyCode").getAsString();
-                        double value = exposureObject.get("value").getAsDouble();
-                        currencyExposures.put(currencyCode, value);
-                    }
-                }
-            } else {
-                throw new IllegalArgumentException("Unexpected root element type: " + jsonElement);
-            }
-        } catch (FileNotFoundException e) {
-            throw new IOException("File not found: " + String.format(fileName));
-        }
-        return currencyExposures;
+        ExposureUtil.isRoundingRequired(mockParams, mockList);
+
+        verify(mockList).addAll(anyList()); // Assuming getRoundedExposures adds rounded values to the list
     }
 
-    public static void main(String[] args) throws IOException {
-        String fileName = "test_data.json";  // Replace with your actual file path
-        Map<String, Double> currencyExposures = parseCurrencyExposures(fileName);
-        System.out.println(currencyExposures);
-    }
-}
+    @Test
+    public void testGetRoundedExposures_NotCalledWhenRoundingDisabled() {
+        ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
+        List<CurrencyExposureBreakdownDto> mockList = mock(List.class);
+        HashMap<Stringشور mockHeaders = new HashMap<>();
+        mockHeaders.put("rounding", Collections.singletonList("false"));
+        when(mockParams.getRequestContext()).thenReturn(mock(RequestContext.class));
+        when(mockParams.getRequestContext().getHeaders()).thenReturn(mockHeaders);
 
+        ExposureUtil.isRoundingRequired(mockParams, mockList);
 
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-public class ParseCurrencyExposuresGson {
-
-    public static Map<String, Double> parseCurrencyExposures(String fileName) throws IOException {
-        Map<String, Double> currencyExposures = new HashMap<>();
-        try (FileReader reader = new FileReader(fileName)) {
-            Gson gson = new Gson();
-            JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
-
-            // Assuming the root element is an array of currency exposure objects
-            if (jsonElement.isJsonArray()) {
-                JsonArray jsonArray = jsonElement.getAsJsonArray();
-                for (JsonElement exposureElement : jsonArray) {
-                    if (exposureElement.isJsonObject()) {
-                        JsonObject exposureObject = exposureElement.getAsJsonObject();
-                        String currencyCode = exposureObject.get("currencyCode").getAsString();
-                        double value = exposureObject.get("value").getAsDouble();
-                        currencyExposures.put(currencyCode, value);
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            throw new IOException("File not found: " String.format(fileName));
-        }
-        return currencyExposures;
+        verify(mockList, never()).addAll(anyList()); // Verify no addition happens
     }
 
-    public static void main(String[] args) throws IOException {
-        String fileName = "test_data.json";  // Replace with your actual file path
-        Map<String, Double> currencyExposures = parseCurrencyExposures(fileName);
-        System.out.println(currencyExposures);
+    @Test
+    public void testGetRoundedExposures_NotCalledWhenNoRoundingHeader() {
+        ExposureRequestParams mockParams = mock(ExposureRequestParams.class);
+        List<CurrencyExposureBreakdownDto> mockList = mock(List.class);
+        when(mockParams.getRequestContext()).thenReturn(mock(RequestContext.class));
+        when(mockParams.getRequestContext().getHeaders()).thenReturn(new HashMap<>());
+
+        ExposureUtil.isRoundingRequired(mockParams, mockList);
+
+        verify(mockList, never()).addAll(anyList()); // Verify no addition happens
     }
 }
 
