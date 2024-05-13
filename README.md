@@ -1,38 +1,81 @@
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
+import org.junit.runners.JUnit4;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-public class RoundingServiceTest {
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Verifications;
+
+@RunWith(JUnit4.class)
+public class RoundingUtilTest {
+
+    @Injectable
+    private List<CurrencyExposureBreakdownDto> exposureBreakdownDtos; // Mock the exposureBreakdownDtos list
 
     @Test
-    public void testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(List<String> roundingHeader, List<CurrencyExposureBreakdownDto> exposureBreakdownDtos) throws Exception {
-        // Mock currencyExposuresDto
-        CurrencyExposureBreakdownDto mockExposureDto = mock(CurrencyExposureBreakdownDto.class);
+    public void testRoundingCalledWhenHeaderIsTrue() {
+        List<String> roundingHeader = new ArrayList<>();
+        roundingHeader.add("true");
 
-        RoundingService.isRoundingRequired(roundingHeader, Collections.singletonList(mockExposureDto));
+        RoundingUtil.isRoundingRequired(roundingHeader, exposureBreakdownDtos);
 
-        // Verify no interactions on the mocked object
-        verifyNoInteractions(mockExposureDto);
+        new Expectations() {
+            {
+                exposureBreakdownDtos.clear(); // Verify the list is cleared for rounding (optional)
+                exposureBreakdownDtos.addAll(withAnyList()); // Verify any modifications to the list
+            }
+        };
+
+        new Verifications() {
+            {
+                RoundingUtil.getRoundedExposures(exposureBreakdownDtos); times(1);
+            }
+        };
     }
 
     @Test
-    public void testIsRoundingRequired_TrueHeader_NoInteractionWithCurrencyExposuresDto() throws Exception {
-        testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(Collections.singletonList("true"), Collections.emptyList());
+    public void testRoundingNotCalledWhenHeaderIsFalse() {
+        List<String> roundingHeader = new ArrayList<>();
+        roundingHeader.add("false");
+
+        RoundingUtil.isRoundingRequired(roundingHeader, exposureBreakdownDtos);
+
+        new Verifications() {
+            {
+                RoundingUtil.getRoundedExposures(exposureBreakdownDtos); times(0);
+            }
+        };
     }
 
     @Test
-    public void testIsRoundingRequired_FalseHeader_NoInteractionWithCurrencyExposuresDto() throws Exception {
-        testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(Collections.singletonList("false"), Collections.emptyList());
+    public void testRoundingNotCalledWhenHeaderIsEmpty() {
+        List<String> roundingHeader = new ArrayList<>();
+
+        RoundingUtil.isRoundingRequired(roundingHeader, exposureBreakdownDtos);
+
+        new Verifications() {
+            {
+                RoundingUtil.getRoundedExposures(exposureBreakdownDtos); times(0);
+            }
+        };
     }
 
     @Test
-    public void testIsRoundingRequired_EmptyHeader_NoInteractionWithCurrencyExposuresDto() throws Exception {
-        testIsRoundingRequired_NoInteractionWithCurrencyExposuresDto(Collections.emptyList(), Collections.emptyList());
+    public void testRoundingNotCalledWhenHeaderHasOtherValue() {
+        List<String> roundingHeader = new ArrayList<>();
+        roundingHeader.add("abc");
+
+        RoundingUtil.isRoundingRequired(roundingHeader, exposureBreakdownDtos);
+
+        new Verifications() {
+            {
+                RoundingUtil.getRoundedExposures(exposureBreakdownDtos); times(0);
+            }
+        };
     }
 }
-
 
 
 **Pros of using a Header for Rounding:**
