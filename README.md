@@ -33,5 +33,14 @@ private static void roundBenchmarkExposures(BenchmarkExposureBreakdownDto<T> ben
   // ... rest of the code for rounding logic using unroundedValuesMap
 }
 
+private static void roundBenchmarkExposures(BenchmarkExposureBreakdownDto<T> benchmark) {
+    Map<String, Double> unroundedValuesMap = new HashMap<>();
+    Supplier<String> getCode = () -> exposure -> (String) exposure.getClass().getField("code").get(exposure); // Assuming code is a public field
+    Supplier<Double> getValue = () -> exposure -> (Double) exposure.getClass().getField("value").get(exposure); // Assuming value is a public field
+    benchmark.getExposures().forEach(exposure -> unroundedValuesMap.put(getCode.get().apply(exposure), getValue.get().apply(exposure)));
+    // ... rest of the code
+}
+
+
 
 
